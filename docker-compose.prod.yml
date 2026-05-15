@@ -45,9 +45,29 @@ services:
       GEOCODER: nominatim
       NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost}
       PORT: "8080"
+    expose:
+      - "8080"
+
+  # Edge: terminates TLS, auto-fetches Let's Encrypt cert once `SITE_DOMAIN`
+  # resolves to this VM. Set SITE_DOMAIN= empty to serve HTTP-only.
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-}
+    volumes:
+      - ./infra/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
     ports:
-      - "80:8080"
+      - "80:80"
+      - "443:443"
 
 volumes:
   dbdata:
   boundaries:
+  caddydata:
+  caddyconfig:

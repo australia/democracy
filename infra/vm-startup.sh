@@ -24,8 +24,19 @@ fi
 cd democracy
 git pull --ff-only origin main || true
 
-PUBLIC_URL="http://$(curl -sf -H 'Metadata-Flavor: Google' \
-  http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip || echo localhost)"
-export PUBLIC_URL
+EXT_IP=$(curl -sf -H 'Metadata-Flavor: Google' \
+  http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/access-configs/0/external-ip || echo localhost)
+
+# `SITE_DOMAIN` is read from the VM instance metadata so we can flip on
+# HTTPS the moment DNS is pointed at us, without a redeploy.
+SITE_DOMAIN=$(curl -sf -H 'Metadata-Flavor: Google' \
+  http://metadata.google.internal/computeMetadata/v1/instance/attributes/site-domain 2>/dev/null || echo "")
+export SITE_DOMAIN
+
+if [ -n "$SITE_DOMAIN" ]; then
+  export PUBLIC_URL="https://$SITE_DOMAIN"
+else
+  export PUBLIC_URL="http://$EXT_IP"
+fi
 
 docker compose -f docker-compose.prod.yml up -d --build
