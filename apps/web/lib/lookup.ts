@@ -50,9 +50,12 @@ export async function lookupRepsByPoint(
 
   const rows = (await db.execute(sql`
     WITH hit AS (
+      -- Every electorate (across all jurisdictions) whose polygon contains
+      -- the point. With federal + state lower-house boundaries loaded this
+      -- yields one match per chamber the voter is in.
       SELECT e.id AS electorate_id, e.name AS electorate_name,
              c.kind AS chamber_kind, c.id AS chamber_id,
-             j.code AS jurisdiction_code, j.id AS jurisdiction_id
+             j.code AS jurisdiction_code
       FROM electorates e
       JOIN chambers c ON c.id = e.chamber_id
       JOIN jurisdictions j ON j.id = c.jurisdiction_id
@@ -61,7 +64,10 @@ export async function lookupRepsByPoint(
     ),
     inferred_state AS (
       SELECT r2.state_code AS code FROM reps r2
-      WHERE r2.electorate_id IN (SELECT electorate_id FROM hit WHERE chamber_kind = 'lower')
+      WHERE r2.electorate_id IN (
+        SELECT electorate_id FROM hit
+        WHERE chamber_kind = 'lower' AND jurisdiction_code = 'federal'
+      )
         AND r2.inactive_as_of IS NULL
       LIMIT 1
     )
@@ -76,10 +82,11 @@ export async function lookupRepsByPoint(
     LEFT JOIN electorates e ON e.id = r.electorate_id
     WHERE r.inactive_as_of IS NULL
       AND (
-        -- Lower-house MP for the federal electorate the point falls in
-        r.electorate_id IN (SELECT electorate_id FROM hit WHERE chamber_kind = 'lower')
+        -- Any MP (federal or state) whose electorate polygon contains the
+        -- point. With more state boundaries loaded, this widens automatically.
+        r.electorate_id IN (SELECT electorate_id FROM hit)
         OR
-        -- Federal Senate: 12 senators for the user's state (2 for territories)
+        -- Federal Senate: senators for the user's state.
         (
           c.kind = 'upper'
           AND j.code = 'federal'
@@ -94,6 +101,7 @@ export async function lookupRepsByPoint(
         )
       )
     ORDER BY
+      CASE j.code::text WHEN 'federal' THEN 0 ELSE 1 END,
       CASE c.kind WHEN 'lower' THEN 1 WHEN 'unicameral' THEN 2 ELSE 3 END,
       j.code,
       r.family ASC NULLS LAST

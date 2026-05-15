@@ -6,6 +6,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "start": "tsx src/cli.ts",
+    "boundaries": "tsx src/cli-boundaries.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

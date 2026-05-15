@@ -11,6 +11,37 @@ const PARTIES: Array<[RegExp, string]> = [
   [/\bIndependent\b/, "Independent"],
 ];
 
+// Canonical list of NT Legislative Assembly electorates (25 single-member
+// divisions). Used to extract the electorate from page text since the regex
+// otherwise picks up only the first word and trailing role text bleeds in.
+const NT_ELECTORATES = [
+  "Araluen",
+  "Arafura",
+  "Arnhem",
+  "Barkly",
+  "Blain",
+  "Braitling",
+  "Brennan",
+  "Casuarina",
+  "Daly",
+  "Drysdale",
+  "Fannie Bay",
+  "Fong Lim",
+  "Goyder",
+  "Gwoja",
+  "Johnston",
+  "Karama",
+  "Katherine",
+  "Mulka",
+  "Namatjira",
+  "Nelson",
+  "Nightcliff",
+  "Port Darwin",
+  "Sanderson",
+  "Spillett",
+  "Wanguri",
+];
+
 const HONORIFIC_RX =
   /^(The\s+Hon|Hon|Dr|Mr|Mrs|Ms|Miss|Sir|Dame|Rev)\b\.?\s+/i;
 
@@ -72,8 +103,11 @@ export async function run(dryRun: boolean): Promise<void> {
         .first()
         .text()
         .replace(/\s+/g, " ");
-      const elecMatch = txt.match(/Electorate\s*[:\-]?\s*([A-Z][A-Za-z'-]+)/);
-      const electorate = elecMatch?.[1];
+      // Match against the canonical list — longest names first so "Fong Lim"
+      // wins over "Fong".
+      const electorate = [...NT_ELECTORATES]
+        .sort((a, b) => b.length - a.length)
+        .find((e) => new RegExp(`\\b${e}\\b`, "i").test(txt));
       const party = PARTIES.find(([rx]) => rx.test(txt))?.[1];
 
       const { honorific, given, family } = splitName(name);

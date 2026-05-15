@@ -9,12 +9,14 @@
     ".": "./src/index.ts"
   },
   "scripts": {
+    "abs-sed": "tsx src/cli-abs-sed.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@au/db": "workspace:*",
     "cheerio": "^1.0.0",
     "drizzle-orm": "^0.36.3",
+    "shapefile": "^0.6.6",
     "undici": "^6.21.0"
   },
   "devDependencies": {
