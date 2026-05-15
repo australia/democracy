@@ -1,0 +1,15 @@
+**/node_modules
+**/.next
+**/dist
+**/build
+**/.turbo
+data/boundaries/*
+!data/boundaries/.gitkeep
+data/captured-mail
+.git
+.env
+.env.*
+!.env.example
+/legislators-locator
+*.log
+.DS_Store

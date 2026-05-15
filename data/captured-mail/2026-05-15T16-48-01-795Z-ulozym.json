@@ -1,0 +1,19 @@
+{
+  "from": "no-reply@democracy.au",
+  "to": "senator.katy.gallagher@aph.gov.au",
+  "replyTo": "test@example.com",
+  "subject": "[democracy.au] Test message — please ignore",
+  "text": "Dear Senator the Hon Gallagher,\n\nThis is a test message sent during dev. Captured-mail transport should write a JSON file rather than send anything.\n\nYours sincerely,\nTest User\n\nFrom a constituent in Parliament House, Canberra ACT 2600\nPostcode: 2600\nSubmitted via democracy.au on behalf of: Test User <test@example.com>\n\n---\n",
+  "meta": {
+    "rep": {
+      "id": "c0d84573-1b18-40f7-8090-4db14cf23275",
+      "fullName": "Senator the Hon Katy Gallagher",
+      "electorateId": null
+    },
+    "user": {
+      "id": "d84df8ac-2b8d-443b-961d-0753669ec84a",
+      "email": "test@example.com"
+    },
+    "messageId": "bbfb3f34-39a0-4a62-a19e-f682dc31b918"
+  }
+}

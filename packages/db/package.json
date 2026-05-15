@@ -1,0 +1,28 @@
+{
+  "name": "@au/db",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts"
+  },
+  "scripts": {
+    "generate": "drizzle-kit generate && node -e \"const fs=require('fs'),p=require('path'),d='./drizzle';for(const f of fs.readdirSync(d)){if(!f.endsWith('.sql'))continue;const fp=p.join(d,f);const s=fs.readFileSync(fp,'utf8');const o=s.replace(/\\\"(geography\\\\([^\\\"]+\\\\))\\\"/g,'$1').replace(/\\\"(geometry\\\\([^\\\"]+\\\\))\\\"/g,'$1');if(o!==s){fs.writeFileSync(fp,o);console.log('normalized PostGIS types in',f);}}\"",
+    "migrate": "tsx src/migrate.ts",
+    "seed": "tsx src/seed.ts",
+    "studio": "drizzle-kit studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.36.3",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.28.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
