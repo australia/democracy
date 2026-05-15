@@ -10,6 +10,7 @@ type Rep = {
   honorific: string | null;
   party: string | null;
   chamberKind: "lower" | "upper" | "unicameral";
+  jurisdictionCode: string;
   electorateName: string | null;
   stateCode: string | null;
   primaryEmail: string | null;
@@ -84,7 +85,21 @@ export function ComposeFlow() {
       }
       const data = (await res.json()) as LookupResp;
       setResult(data);
-      setSelected(new Set(data.reps.map((r) => r.id)));
+      // Default-select: lower house + federal senate. State-wide upper houses
+      // (NSW LC, WA LC, SA LC) are shown but unchecked — sending to all 42
+      // NSW LC members by default would feel like spam.
+      setSelected(
+        new Set(
+          data.reps
+            .filter(
+              (r) =>
+                r.chamberKind === "lower" ||
+                r.chamberKind === "unicameral" ||
+                (r.chamberKind === "upper" && r.jurisdictionCode === "federal"),
+            )
+            .map((r) => r.id),
+        ),
+      );
       setStep("reps");
     });
   }
@@ -230,14 +245,23 @@ export function ComposeFlow() {
             </span>
             . Choose who should receive your message:
           </p>
-          <div className="mt-6 space-y-2">
-            {result.reps.map((r) => (
-              <RepRow
-                key={r.id}
-                rep={r}
-                checked={selected.has(r.id)}
-                onChange={() => toggle(r.id)}
-              />
+          <div className="mt-6 space-y-6">
+            {groupedReps.map((g) => (
+              <div key={g.label} className="space-y-1">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-neutral-500">
+                  {g.label}
+                </p>
+                <div className="space-y-1">
+                  {g.reps.map((r) => (
+                    <RepRow
+                      key={r.id}
+                      rep={r}
+                      checked={selected.has(r.id)}
+                      onChange={() => toggle(r.id)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
           <div className="mt-8 flex items-center justify-between">

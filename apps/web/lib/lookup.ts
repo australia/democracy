@@ -38,6 +38,16 @@ export async function lookupRepsByPoint(
 
   const point = sql`ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326)`;
 
+  // Hard-coded list of state upper houses that are *state-wide* (i.e. every
+  // voter has all members as their reps). Regional upper houses (VIC LC, TAS
+  // LC) are excluded; those require region boundaries to look up correctly.
+  // Federal Senate is state-based but handled separately below.
+  // - NSW LC: 42 members elected at-large
+  // - WA LC: 37 members elected at-large (post 2021 reform, in force 2025)
+  // - SA LC: 22 members elected at-large
+  // - ACT, NT unicamerals are regional; QLD unicameral too.
+  const STATE_WIDE_UPPER_JURIS = ["nsw", "wa", "sa"];
+
   const rows = (await db.execute(sql`
     WITH hit AS (
       SELECT e.id AS electorate_id, e.name AS electorate_name,
@@ -49,14 +59,11 @@ export async function lookupRepsByPoint(
       WHERE e.valid_to IS NULL
         AND ST_Contains(e.geom::geometry, ${point})
     ),
-    fed_state AS (
-      -- Federal state name from the AEC electorate -> state map. The AEC
-      -- shapefile doesn't carry the state; we infer it from the rep on that
-      -- seat (every elected MP carries the correct state implicitly via their
-      -- electorate). Until v1 imports state-tagged metadata, we fall back to
-      -- a constant-NULL — the lookup is still useful: senators are filtered
-      -- below by matching whichever jurisdiction the lower-house seat is in.
-      SELECT DISTINCT NULL::text AS s
+    inferred_state AS (
+      SELECT r2.state_code AS code FROM reps r2
+      WHERE r2.electorate_id IN (SELECT electorate_id FROM hit WHERE chamber_kind = 'lower')
+        AND r2.inactive_as_of IS NULL
+      LIMIT 1
     )
     SELECT r.id, r.full_name AS "fullName", r.honorific, r.party,
            c.kind AS "chamberKind", j.code AS "jurisdictionCode",
@@ -69,27 +76,27 @@ export async function lookupRepsByPoint(
     LEFT JOIN electorates e ON e.id = r.electorate_id
     WHERE r.inactive_as_of IS NULL
       AND (
-        -- Lower-house MP whose electorate the point falls in
+        -- Lower-house MP for the federal electorate the point falls in
         r.electorate_id IN (SELECT electorate_id FROM hit WHERE chamber_kind = 'lower')
         OR
-        -- Senators / upper-house members: match by state code for federal,
-        -- match by state-jurisdiction for state parliaments (TODO when state
-        -- boundaries are imported).
+        -- Federal Senate: 12 senators for the user's state (2 for territories)
         (
           c.kind = 'upper'
           AND j.code = 'federal'
-          AND r.state_code = (
-            -- Derive state code from the seat hit: every federal MP's
-            -- state_code field is set in roster_audit. We resolve it via the
-            -- MP currently holding the seat.
-            SELECT r2.state_code FROM reps r2
-            WHERE r2.electorate_id IN (SELECT electorate_id FROM hit WHERE chamber_kind = 'lower')
-              AND r2.inactive_as_of IS NULL
-            LIMIT 1
-          )
+          AND r.state_code = (SELECT code FROM inferred_state)
+        )
+        OR
+        -- State-wide upper houses (NSW LC, WA LC, SA LC).
+        (
+          c.kind = 'upper'
+          AND j.code::text = ANY(ARRAY[${sql.join(STATE_WIDE_UPPER_JURIS.map((s) => sql`${s}`), sql`, `)}]::text[])
+          AND r.state_code = (SELECT code FROM inferred_state)
         )
       )
-    ORDER BY c.kind DESC, r.family ASC NULLS LAST
+    ORDER BY
+      CASE c.kind WHEN 'lower' THEN 1 WHEN 'unicameral' THEN 2 ELSE 3 END,
+      j.code,
+      r.family ASC NULLS LAST
   `)) as unknown as RepLookup[];
 
   const electorates: LookupResult["electorates"] = [];
