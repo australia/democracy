@@ -10,6 +10,7 @@
   },
   "scripts": {
     "abs-sed": "tsx src/cli-abs-sed.ts",
+    "import-rosters": "tsx src/cli-import-rosters.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
