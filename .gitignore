@@ -30,6 +30,9 @@ pnpm-debug.log*
 data/boundaries/*
 !data/boundaries/.gitkeep
 data/cache/
+# Pre-scraped roster JSONs ARE committed — see infra/init.sh for why.
+!data/rosters/
+!data/rosters/*.json
 
 # legacy 2014 prototype — kept on disk for reference, not part of new build
 /legislators-locator

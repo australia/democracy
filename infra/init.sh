@@ -25,12 +25,11 @@ else
   echo "==> Skipping federal roster scrape (reps already loaded: $REPS)"
 fi
 
-# State / territory roster scrapes. Run BEFORE boundary loading so the
-# boundary-link step finds them. applyRoster() is idempotent.
-for st in nsw vic qld wa tas act nt sa; do
-  echo "==> $st roster"
-  pnpm --filter "@au/ingest-state-$st" start || echo "($st scrape failed, continuing)"
-done
+# State / territory rosters. We import from committed JSON files because state
+# parliament sites block GCE IPs with HTTP 403. The JSONs are refreshed on a
+# developer machine (`pnpm dump-rosters`) and committed alongside scraper code.
+echo "==> Importing state rosters from /repo/data/rosters"
+pnpm --filter @au/ingest-shared import-rosters /repo/data/rosters || echo "(roster import failed, continuing)"
 
 # Download + load AEC boundaries if not yet present.
 SHP=/repo/data/boundaries/federal/AUS_ELB_region.shp
