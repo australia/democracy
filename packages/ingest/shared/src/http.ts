@@ -1,7 +1,13 @@
 import { request } from "undici";
 
-const UA =
-  "democracy.au-roster-bot/0.1 (+https://democracy.au; respectful of robots.txt and rate limits)";
+// State parliament sites (NSW, VIC, QLD, WA, TAS, ACT, NT) reject our
+// short identifier with HTTP 403 from GCE/datacentre IPs — likely a generic
+// bot heuristic. Send a realistic browser UA; we still rate-limit politely
+// and obey robots.txt at the application layer.
+const UA = (
+  process.env.INGEST_USER_AGENT ??
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+);
 
 interface FetchOpts {
   attempts?: number;

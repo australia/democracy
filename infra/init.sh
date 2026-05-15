@@ -25,6 +25,13 @@ else
   echo "==> Skipping federal roster scrape (reps already loaded: $REPS)"
 fi
 
+# State / territory roster scrapes. Run BEFORE boundary loading so the
+# boundary-link step finds them. applyRoster() is idempotent.
+for st in nsw vic qld wa tas act nt sa; do
+  echo "==> $st roster"
+  pnpm --filter "@au/ingest-state-$st" start || echo "($st scrape failed, continuing)"
+done
+
 # Download + load AEC boundaries if not yet present.
 SHP=/repo/data/boundaries/federal/AUS_ELB_region.shp
 if [ ! -f "$SHP" ]; then
@@ -64,12 +71,5 @@ if [ ! -f "$SED_SHP" ]; then
 fi
 echo "==> Loading state electoral boundaries (ABS SED 2025)"
 pnpm --filter @au/ingest-shared abs-sed "$SED_SHP" || echo "(SED load failed, continuing)"
-
-# State / territory roster scrapes. applyRoster() is idempotent so safe to
-# re-run; let it run every boot so we stay in sync with each parliament.
-for st in nsw vic qld wa tas act nt sa; do
-  echo "==> $st roster"
-  pnpm --filter "@au/ingest-state-$st" start || echo "($st scrape failed, continuing)"
-done
 
 echo "==> Init complete"

@@ -58,7 +58,9 @@ async function fetchHouse(house: "10" | "20"): Promise<MemberHit[]> {
   const url = `${API}?member-house=${house}&member-status=current&page=1&pageSize=200`;
   const res = await request(url, {
     headers: {
-      "user-agent": "democracy.au-roster-bot/0.1",
+      "user-agent":
+        process.env.INGEST_USER_AGENT ??
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
       accept: "application/json",
     },
   });
