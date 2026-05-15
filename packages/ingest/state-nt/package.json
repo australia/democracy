@@ -1,0 +1,22 @@
+{
+  "name": "@au/ingest-state-nt",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "start": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@au/db": "workspace:*",
+    "@au/ingest-shared": "workspace:*",
+    "cheerio": "^1.0.0",
+    "drizzle-orm": "^0.36.3",
+    "undici": "^6.21.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

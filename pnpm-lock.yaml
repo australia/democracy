@@ -183,6 +183,31 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  packages/ingest/state-nt:
+    dependencies:
+      '@au/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@au/ingest-shared':
+        specifier: workspace:*
+        version: link:../shared
+      cheerio:
+        specifier: ^1.0.0
+        version: 1.2.0
+      drizzle-orm:
+        specifier: ^0.36.3
+        version: 0.36.4(@types/react@19.2.14)(postgres@3.4.9)(react@19.2.6)
+      undici:
+        specifier: ^6.21.0
+        version: 6.25.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/ingest/state-qld:
     dependencies:
       '@au/db':
@@ -208,7 +233,73 @@ importers:
         specifier: ^5.6.3
         version: 5.9.3
 
+  packages/ingest/state-sa:
+    dependencies:
+      '@au/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@au/ingest-shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
+  packages/ingest/state-tas:
+    dependencies:
+      '@au/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@au/ingest-shared':
+        specifier: workspace:*
+        version: link:../shared
+      cheerio:
+        specifier: ^1.0.0
+        version: 1.2.0
+      drizzle-orm:
+        specifier: ^0.36.3
+        version: 0.36.4(@types/react@19.2.14)(postgres@3.4.9)(react@19.2.6)
+      undici:
+        specifier: ^6.21.0
+        version: 6.25.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
   packages/ingest/state-vic:
+    dependencies:
+      '@au/db':
+        specifier: workspace:*
+        version: link:../../db
+      '@au/ingest-shared':
+        specifier: workspace:*
+        version: link:../shared
+      cheerio:
+        specifier: ^1.0.0
+        version: 1.2.0
+      drizzle-orm:
+        specifier: ^0.36.3
+        version: 0.36.4(@types/react@19.2.14)(postgres@3.4.9)(react@19.2.6)
+      undici:
+        specifier: ^6.21.0
+        version: 6.25.0
+    devDependencies:
+      tsx:
+        specifier: ^4.19.2
+        version: 4.22.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
+  packages/ingest/state-wa:
     dependencies:
       '@au/db':
         specifier: workspace:*

@@ -24,7 +24,11 @@
     "ingest:vic": "pnpm --filter @au/ingest-state-vic start",
     "ingest:qld": "pnpm --filter @au/ingest-state-qld start",
     "ingest:act": "pnpm --filter @au/ingest-state-act start",
-    "ingest:nsw": "pnpm --filter @au/ingest-state-nsw start"
+    "ingest:nsw": "pnpm --filter @au/ingest-state-nsw start",
+    "ingest:wa": "pnpm --filter @au/ingest-state-wa start",
+    "ingest:tas": "pnpm --filter @au/ingest-state-tas start",
+    "ingest:nt": "pnpm --filter @au/ingest-state-nt start",
+    "ingest:sa": "pnpm --filter @au/ingest-state-sa start"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
