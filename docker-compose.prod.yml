@@ -1,0 +1,53 @@
+name: democracy
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: au
+      POSTGRES_PASSWORD: au
+      POSTGRES_DB: au
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ./infra/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "au", "-d", "au"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  # One-shot init: migrate, seed reference data, fetch + load federal roster,
+  # download AEC shapefile + load boundaries. Exits when done. Safe to re-run.
+  init:
+    build:
+      context: .
+      dockerfile: infra/init.Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://au:au@db:5432/au
+    volumes:
+      - boundaries:/repo/data/boundaries
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgres://au:au@db:5432/au
+      EMAIL_TRANSPORT: captured
+      GEOCODER: nominatim
+      NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost}
+      PORT: "8080"
+    ports:
+      - "80:8080"
+
+volumes:
+  dbdata:
+  boundaries:
