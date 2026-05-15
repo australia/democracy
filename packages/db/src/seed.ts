@@ -93,21 +93,18 @@ async function main() {
       )[0];
     if (!jurisdictionRow) throw new Error(`failed to upsert jurisdiction ${j.code}`);
 
+    const existingChambers = await db
+      .select()
+      .from(chambers)
+      .where(eq(chambers.jurisdictionId, jurisdictionRow.id));
     for (const c of j.chambers) {
-      const [haveCh] = await db
-        .select()
-        .from(chambers)
-        .where(eq(chambers.jurisdictionId, jurisdictionRow.id))
-        .limit(50);
-      const exists = (haveCh ? [haveCh] : []).find((r) => r.kind === c.kind);
-      if (!exists) {
-        await db.insert(chambers).values({
-          jurisdictionId: jurisdictionRow.id,
-          kind: c.kind,
-          name: c.name,
-          membersPerVoter: c.membersPerVoter,
-        });
-      }
+      if (existingChambers.some((r) => r.kind === c.kind)) continue;
+      await db.insert(chambers).values({
+        jurisdictionId: jurisdictionRow.id,
+        kind: c.kind,
+        name: c.name,
+        membersPerVoter: c.membersPerVoter,
+      });
     }
   }
   console.log("Seed applied.");
