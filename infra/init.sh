@@ -51,4 +51,15 @@ else
   echo "==> Skipping boundary load (electorates already present: $ELEC)"
 fi
 
+# State / territory roster scrapes. applyRoster() is idempotent so safe to
+# re-run; let it run every boot so we stay in sync with each parliament.
+echo "==> NSW roster"
+pnpm --filter @au/ingest-state-nsw start || echo "(nsw scrape failed, continuing)"
+echo "==> VIC roster"
+pnpm --filter @au/ingest-state-vic start || echo "(vic scrape failed, continuing)"
+echo "==> QLD roster"
+pnpm --filter @au/ingest-state-qld start || echo "(qld scrape failed, continuing)"
+echo "==> ACT roster"
+pnpm --filter @au/ingest-state-act start || echo "(act scrape failed, continuing)"
+
 echo "==> Init complete"

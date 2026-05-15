@@ -20,7 +20,11 @@
     "db:seed": "pnpm --filter @au/db seed",
     "db:studio": "pnpm --filter @au/db studio",
     "ingest:federal": "pnpm --filter @au/ingest-federal start",
-    "ingest:federal:boundaries": "pnpm --filter @au/ingest-federal boundaries"
+    "ingest:federal:boundaries": "pnpm --filter @au/ingest-federal boundaries",
+    "ingest:vic": "pnpm --filter @au/ingest-state-vic start",
+    "ingest:qld": "pnpm --filter @au/ingest-state-qld start",
+    "ingest:act": "pnpm --filter @au/ingest-state-act start",
+    "ingest:nsw": "pnpm --filter @au/ingest-state-nsw start"
   },
   "devDependencies": {
     "typescript": "^5.6.3",
