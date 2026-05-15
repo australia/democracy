@@ -13,6 +13,7 @@ RUN apt-get update \
 COPY pnpm-workspace.yaml pnpm-lock.yaml package.json tsconfig.base.json ./
 COPY packages ./packages
 COPY apps ./apps
+COPY data/rosters ./data/rosters
 
 RUN pnpm install --frozen-lockfile
 
