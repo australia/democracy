@@ -158,6 +158,29 @@ export function ComposeFlow() {
     userName.trim().length >= 2 &&
     !sending;
 
+  // Group reps by jurisdiction + chamber for the picker. Federal lower first,
+  // then federal upper, then any state-level rows we returned.
+  const groupedReps: Array<{ label: string; reps: Rep[] }> = useMemo(() => {
+    if (!result) return [];
+    const groups = new Map<string, Rep[]>();
+    for (const r of result.reps) {
+      const key =
+        r.jurisdictionCode === "federal"
+          ? `Federal — ${r.chamberKind === "lower" ? "House of Representatives" : "Senate"}`
+          : `${r.jurisdictionCode.toUpperCase()} — ${
+              r.chamberKind === "lower"
+                ? "Lower House"
+                : r.chamberKind === "upper"
+                  ? "Upper House"
+                  : "Assembly"
+            }`;
+      const list = groups.get(key);
+      if (list) list.push(r);
+      else groups.set(key, [r]);
+    }
+    return Array.from(groups, ([label, reps]) => ({ label, reps }));
+  }, [result]);
+
   return (
     <div className="space-y-12">
       <Stepper
