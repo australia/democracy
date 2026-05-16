@@ -42,12 +42,12 @@ services:
     environment:
       DATABASE_URL: postgres://au:au@db:5432/au
       EMAIL_TRANSPORT: captured
-      CAPTURED_MAIL_DIR: /var/mail
+      # /tmp is always writable; captured-mail also logs each message to
+      # stdout, which is the primary inspection path.
+      CAPTURED_MAIL_DIR: /tmp/captured-mail
       GEOCODER: nominatim
       NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost}
       PORT: "8080"
-    volumes:
-      - capturedmail:/var/mail
     expose:
       - "8080"
 
@@ -74,4 +74,3 @@ volumes:
   boundaries:
   caddydata:
   caddyconfig:
-  capturedmail:
