@@ -42,9 +42,12 @@ services:
     environment:
       DATABASE_URL: postgres://au:au@db:5432/au
       EMAIL_TRANSPORT: captured
+      CAPTURED_MAIL_DIR: /var/mail
       GEOCODER: nominatim
       NEXT_PUBLIC_APP_URL: ${PUBLIC_URL:-http://localhost}
       PORT: "8080"
+    volumes:
+      - capturedmail:/var/mail
     expose:
       - "8080"
 
@@ -71,3 +74,4 @@ volumes:
   boundaries:
   caddydata:
   caddyconfig:
+  capturedmail:

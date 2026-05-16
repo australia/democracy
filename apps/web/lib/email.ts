@@ -35,10 +35,25 @@ function ts() {
 const captured: EmailTransport = {
   name: "captured",
   async send(msg) {
-    await mkdir(CAPTURED_DIR, { recursive: true });
     const id = `${ts()}-${Math.random().toString(36).slice(2, 8)}`;
-    const file = join(CAPTURED_DIR, `${id}.json`);
-    await writeFile(file, JSON.stringify(msg, null, 2), "utf8");
+    // Always log a one-line summary to stdout so we can see captures in the
+    // container logs even without volume access.
+    console.log(
+      `[captured-mail] ${id} to=${msg.to} from=${msg.from} subject=${JSON.stringify(msg.subject)} bytes=${msg.text.length}`,
+    );
+    // Best-effort: also persist the full message to disk if the directory is
+    // writable. Failures here don't break the send.
+    try {
+      await mkdir(CAPTURED_DIR, { recursive: true });
+      const file = join(CAPTURED_DIR, `${id}.json`);
+      await writeFile(file, JSON.stringify(msg, null, 2), "utf8");
+    } catch (err) {
+      console.warn(
+        `[captured-mail] could not persist ${id} to disk: ${
+          err instanceof Error ? err.message : String(err)
+        }`,
+      );
+    }
     return { transportId: id, success: true };
   },
 };
