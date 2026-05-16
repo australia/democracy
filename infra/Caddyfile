@@ -2,14 +2,19 @@
 	email thomasalwyndavis@gmail.com
 }
 
-# If SITE_DOMAIN is set, serve HTTPS on that name (Caddy auto-issues a Let's
-# Encrypt cert as soon as the A record points here). Always serve plain HTTP
-# on the bare host so the IP-based URL keeps working.
+# Serve HTTPS on SITE_DOMAIN with Caddy's internal CA (self-signed).
+# Cloudflare in "Full" SSL mode accepts any origin cert; Let's Encrypt's
+# HTTP-01/TLS-ALPN-01 challenges can't succeed while Cloudflare proxies
+# the domain, so we don't try. For a publicly-trusted origin cert later,
+# use a Cloudflare Origin Certificate (15-year) or wire DNS-01 via a CF API
+# token.
 {$SITE_DOMAIN} {
+	tls internal
 	encode zstd gzip
 	reverse_proxy app:8080
 }
 
+# Plain HTTP for direct IP access (and Cloudflare "Flexible" mode if used).
 :80 {
 	encode zstd gzip
 	reverse_proxy app:8080
